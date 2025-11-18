@@ -20,14 +20,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const spotsLeft = details.max_participants - details.participants.length;
 
-        // 参加者リストHTML生成
+        // 参加者リストHTML生成（削除アイコン付き、箇条書き非表示）
         let participantsHTML = `
           <div class="participants-section">
             <h5>参加者</h5>
-            <ul class="participants-list">
+            <ul class="participants-list no-bullets">
               ${
                 details.participants.length > 0
-                  ? details.participants.map(p => `<li>${p}</li>`).join("")
+                  ? details.participants.map(p => `
+                      <li>
+                        <span class="participant-name">${p}</span>
+                        <span class="delete-participant" title="削除" data-activity="${name}" data-participant="${p}">&#128465;</span>
+                      </li>
+                    `).join("")
                   : '<li>まだ参加者はいません</li>'
               }
             </ul>
@@ -49,6 +54,38 @@ document.addEventListener("DOMContentLoaded", () => {
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
+      });
+
+      // 削除アイコンのイベントリスナー追加
+      document.querySelectorAll('.delete-participant').forEach(icon => {
+        icon.addEventListener('click', async (e) => {
+          const activity = e.target.getAttribute('data-activity');
+          const participant = e.target.getAttribute('data-participant');
+          if (confirm(`${participant} を「${activity}」から削除しますか？`)) {
+            try {
+              const response = await fetch(`/activities/${encodeURIComponent(activity)}/unregister?email=${encodeURIComponent(participant)}`, {
+                method: 'DELETE',
+              });
+              const result = await response.json();
+              if (response.ok) {
+                messageDiv.textContent = result.message || `${participant} を削除しました。`;
+                messageDiv.className = "success";
+                fetchActivities();
+              } else {
+                messageDiv.textContent = result.detail || "削除に失敗しました。";
+                messageDiv.className = "error";
+              }
+              messageDiv.classList.remove("hidden");
+              setTimeout(() => {
+                messageDiv.classList.add("hidden");
+              }, 4000);
+            } catch (error) {
+              messageDiv.textContent = "削除に失敗しました。";
+              messageDiv.className = "error";
+              messageDiv.classList.remove("hidden");
+            }
+          }
+        });
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";

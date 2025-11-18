@@ -90,12 +90,35 @@ section h3 {
   font-weight: bold;
 }
 
+
 .participants-list {
-  list-style-type: disc;
-  margin-left: 20px;
+  list-style-type: none;
+  margin-left: 0;
   color: #333;
   font-size: 15px;
   padding-left: 0;
+}
+
+.no-bullets {
+  list-style-type: none !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.participant-name {
+  margin-right: 8px;
+}
+
+.delete-participant {
+  cursor: pointer;
+  color: #c62828;
+  margin-left: 4px;
+  font-size: 16px;
+  vertical-align: middle;
+  transition: color 0.2s;
+}
+.delete-participant:hover {
+  color: #b71c1c;
 }
 
 .participants-list li {
